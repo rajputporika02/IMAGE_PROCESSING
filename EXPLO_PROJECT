@@ -1,0 +1,205 @@
+#SEGMENTATION OF TWO PHASE MATERIAL MICROGRAPH USING MATLAB
+steel= imread('steel.jpg');
+gray_steel = rgb2gray(steel);
+map = [1 0 0; 0 1 0]; % red and green
+colormap(map);
+imagesc(gray_steel);
+map(1,1) = 1,2; % increase the value of red 
+colormap(map);
+imwrite(gray_steel, 'new_steel.jpg');
+
+
+
+
+
+#SEGMENTATION OF MORE THAN TWO PHASE MATERIAL MICROGRAPH BY PSEUDO COLORING IN MATLAB
+om= imread('four.jpg');
+% Convert to grayscale
+gray_image = rgb2gray(om);
+
+% Save the grayscale image
+imwrite(gray_image, 'grayscale_image.jpg'); % Replace with your desired file name and format
+
+imshow(gray_image);
+%title('Grayscale Image');
+
+%pseudocolouring
+img= imread('grayscale_image.jpg');
+[ r,c] = size(img);
+R=uint8(zeros(r,c)); G=uint8(zeros(r,c)); B= uint8(zeros(r,c));
+nos=input('Enter number of slices:' ) ;
+Color=zeros(nos,3);
+interval=zeros(nos,2);
+for i=1:nos
+interval(i, :)= input('Enter Intensity Interval:  ');
+Color (i,:) = uint8(255*uisetcolor('select Color for pseudo coloring'));
+end
+for s=1:nos
+slice=interval(s,:); LL=slice(1); UL=slice(2);
+rgb=Color(s,:) ; red=rgb(1); green=rgb(2); blue=rgb(3);
+for i=1:r
+for j=1:c
+if img(i,j)>=LL  &&img(i,j)<=UL 
+      R(i,j)=red; G(i,j) = green; B(i,j)=blue;
+end
+end 
+end
+end 
+imgc=cat(3,R,G,B);
+imshow(imgc)
+title( 'Pseudo Color Image')
+
+
+
+
+
+
+
+#Edge Detection of a colored image (two phase or three phase) Using MATLAB
+originalImage = imread('six1c8.png'); % Replace 'colored_image.jpg' with your image file path
+grayImage = rgb2gray(originalImage);
+edgeImage = edge(grayImage, 'Canny'); % You can also use other methods like 'Sobel', 'Prewitt', etc.
+
+% Define a structuring element for dilation
+se = strel('disk', 1); % Adjust the size of the disk to control thickness
+
+% Dilate the edges
+dilatedEdges = imdilate(edgeImage, se);
+
+imshow(dilatedEdges);
+title('Dilated Edges');
+
+overlayedImage = originalImage;
+overlayedImage(repmat(dilatedEdges, [1, 1, 3])) = 0; % Overlay dilated edges in white
+
+imshow(overlayedImage);
+title('Dilated Edges Overlayed on Original Image');
+
+imwrite(overlayedImage, 'result_image.jpg'); % Save the result image
+
+
+
+
+
+
+
+
+#Boundary and Perimeter Detection of grayscale image Using MATLAB
+clc
+clear all
+close all
+warning off
+x=imread('C:\Users\GANESH\Desktop\boundaryimage.jpg');
+k=~imbinarize(x);
+k=imfill(k,'holes');
+figure;
+imshow(x);
+title('Input Image');
+sto=[];
+[a b]=size(k);
+output=zeros(a,b);
+for i=2:a-1
+    for j=2:b-1
+sto=[k(i-1,j-1),k(i-1,j),k(i-1,j+1),k(i,j-1),k(i,j)...
+,k(i,j+1),k(i+1,j-1),k(i+1,j),k(i+1,j+1)];
+es=sum(sto);
+if(es<=7 && k(i,j)==1)
+            output(i,j)=1;
+        end
+sto=[];
+    end
+end
+[i,j]=find(output);
+hold on;
+plot(j,i,'g.');
+title('Perimeter Detected Image');
+
+
+
+
+
+
+#finding phase_fractions of two phase colored image
+img = imread('two.png');
+
+% Convert the image to grayscale if it's not already
+if size(img, 3) > 1
+img = rgb2gray(img);
+end
+
+% Display the grayscale image
+imshow(img);
+title('Original Image');
+
+% Threshold the image to separate the two phases (adjust the threshold as needed)
+threshold = 128; % You can adjust this threshold value
+binary_img = img> threshold;
+
+% Display the binary image after thresholding
+figure;
+imshow(binary_img);
+title('Binary Image after Thresholding');
+
+% Calculate the area fraction of each phase
+total_pixels = numel(binary_img);
+phase1_pixels = sum(binary_img(:) == 0); % Assuming phase 1 is the background
+phase2_pixels = sum(binary_img(:) == 1); % Assuming phase 2 is the foreground
+
+area_fraction_phase1 = phase1_pixels / total_pixels;
+area_fraction_phase2 = phase2_pixels / total_pixels;
+
+fprintf('Area Fraction of Phase 1: %.2f%%\n', area_fraction_phase1 * 100);
+fprintf('Area Fraction of Phase 2: %.2f%%\n', area_fraction_phase2 * 100);
+
+% AREA FRACTION OF "TWO.PNG"
+
+
+
+
+
+
+
+
+
+
+#finding phase_fractions of more than two phase colored image(convert rgb image-8bit image and take it as input)
+% Read the grayscale image
+image = imread('Screenshot 2024-05-30 115248.png');
+
+% Convert image to double for precise calculations
+image = double(image);
+
+% Define grayscale ranges for each phase
+% Here, phaseRanges is a Nx2 matrix where N is the number of phases
+% Each row contains the min and max grayscale values for a phase
+phaseRanges = [
+    195, 195;    % Phase 1: grayscale values from 0 to 85
+    0, 194;  % Phase 2: grayscale values from 86 to 170
+    196, 255; % Phase 3: grayscale values from 171 to 255
+];
+
+% Number of phases
+numPhases = size(phaseRanges, 1);
+
+% Initialize an array to store the fraction of each phase
+phaseFractions = zeros(numPhases, 1);
+
+% Total number of pixels in the image
+totalPixels = numel(image);
+
+% Loop through each phase and calculate the fraction
+for i = 1:numPhases
+    % Create a binary mask for the current phase
+    mask = image >= phaseRanges(i, 1) & image <= phaseRanges(i, 2);
+    
+    % Calculate the number of pixels in this phase
+    numPhasePixels = sum(mask(:));
+    
+    % Calculate the fraction of the image occupied by this phase
+    phaseFractions(i) = numPhasePixels / totalPixels;
+end
+
+% Display the results
+for i = 1:numPhases
+    fprintf('Phase %d fraction: %.2f%%\n', i, phaseFractions(i) * 100);
+end
