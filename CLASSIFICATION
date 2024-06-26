@@ -1,0 +1,282 @@
+#############################Image Classification with CNN using TensorFlow and Keras on Custom Dataset########################################
+!mkdir -p ~/.kaggle
+!cp kaggle.json ~/.kaggle/
+!kaggle datasets download -d rajputporika/dataset1
+import zipfile
+zip_ref= zipfile.ZipFile('/content/dataset1.zip','r')
+zip_ref.extractall('/content')
+zip_ref.close()
+import tensorflow as tf
+from tensorflow import keras
+from keras import Sequential
+fromkeras.layersimport Dense, Conv2D, MaxPooling2D, Flatten
+importmatplotlib.pyplotas plt
+
+# Generators
+train_ds = keras.utils.image_dataset_from_directory(
+    directory='/content/DATA/TRAINING_DATA',
+    labels='inferred',
+    label_mode='int',
+    batch_size=10,
+    image_size=(256, 256)
+)
+validation_ds = keras.utils.image_dataset_from_directory(
+    directory='/content/DATA/TESTING_DATA',
+    labels='inferred',
+    label_mode='int',
+    batch_size=10,
+    image_size=(256, 256)
+)
+
+# Normalize
+defprocess(image, label):
+    image = tf.cast(image / 255., tf.float32)
+    return image, label
+
+train_ds = train_ds.map(process)
+validation_ds = validation_ds.map(process)
+
+# Model
+model = Sequential()
+model.add(Conv2D(32, kernel_size=(3, 3), padding='valid', activation='relu', input_shape=(256, 256, 3)))
+model.add(MaxPooling2D(pool_size=(2, 2), strides=2, padding='valid'))
+
+model.add(Conv2D(64, kernel_size=(3, 3), padding='valid', activation='relu'))
+model.add(MaxPooling2D(pool_size=(2, 2), strides=2, padding='valid'))
+
+model.add(Conv2D(128, kernel_size=(3, 3), padding='valid', activation='relu'))
+model.add(MaxPooling2D(pool_size=(2, 2), strides=2, padding='valid'))
+
+model.add(Flatten())
+
+model.add(Dense(128, activation='relu'))
+model.add(Dense(64, activation='relu'))
+# Adjust output layer to match number of classes (6 classes)
+model.add(Dense(6, activation='softmax'))  # softmax for multi-class classification
+model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
+
+# Training
+history = model.fit(train_ds, epochs=20, validation_data=validation_ds)
+
+# Plotting
+plt.plot(history.history['accuracy'], color='red', label='train')
+plt.plot(history.history['val_accuracy'], color='blue', label='validation')
+plt.legend()
+plt.show()
+
+import cv2
+test_img=cv2.imread('/content/Screenshot 2024-03-01 181721.png')
+plt.imshow(test_img)
+test_img=cv2.resize(test_img,(256,256))
+test_input=test_img.reshape((1,256,256,3))
+model.predict(test_input)
+
+
+
+
+
+
+#IF TEST INPUT IS RGB:CNN
+!mkdir -p ~/.kaggle
+!cp kaggle.json ~/.kaggle/
+!kaggle datasets download -d rajputporika/dataset1
+import zipfile
+zip_ref= zipfile.ZipFile('/content/dataset1.zip','r')
+zip_ref.extractall('/content')
+zip_ref.close()
+import tensorflow as tf
+from tensorflow import keras
+from keras import Sequential
+from keras.layers import Dense, Conv2D, MaxPooling2D, Flatten
+import matplotlib.pyplot as plt
+
+# Generators
+train_ds = keras.utils.image_dataset_from_directory(
+    directory='/content/DATA/TRAINING_DATA',
+    labels='inferred',
+    label_mode='int',
+    batch_size=10,
+    image_size=(256, 256)
+)
+validation_ds = keras.utils.image_dataset_from_directory(
+    directory='/content/DATA/TESTING_DATA',
+    labels='inferred',
+    label_mode='int',
+    batch_size=10,
+    image_size=(256, 256)
+)
+
+# Normalize
+def process(image, label):
+    # Ensure images are float32 and in the range [0, 1]
+    image = tf.cast(image / 255., tf.float32)
+    return image, label
+
+train_ds = train_ds.map(process)
+validation_ds = validation_ds.map(process)
+
+# Model
+model = Sequential()
+model.add(Conv2D(32, kernel_size=(3, 3), padding='valid', activation='relu', input_shape=(256, 256, 3)))
+model.add(MaxPooling2D(pool_size=(2, 2), strides=2, padding='valid'))
+
+model.add(Conv2D(64, kernel_size=(3, 3), padding='valid', activation='relu'))
+model.add(MaxPooling2D(pool_size=(2, 2), strides=2, padding='valid'))
+
+model.add(Conv2D(128, kernel_size=(3, 3), padding='valid', activation='relu'))
+model.add(MaxPooling2D(pool_size=(2, 2), strides=2, padding='valid'))
+
+model.add(Flatten())
+
+model.add(Dense(128, activation='relu'))
+model.add(Dense(64, activation='relu'))
+# Adjust output layer to match number of classes (6 classes)
+model.add(Dense(4, activation='softmax'))  # softmax for multi-class classification
+model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
+
+# Training
+history = model.fit(train_ds, epochs=20, validation_data=validation_ds)
+
+# Plotting
+plt.plot(history.history['accuracy'], color='red', label='train')
+plt.plot(history.history['val_accuracy'], color='blue', label='validation')
+plt.legend()
+plt.show()
+
+# Load and preprocess test image
+import cv2
+test_img = cv2.imread('/content/Screenshot 2024-03-01 181721.png')  # Load test image
+test_img = cv2.cvtColor(test_img, cv2.COLOR_BGR2RGB)  # Convert BGR to RGB
+test_img = cv2.resize(test_img, (256, 256))  # Resize to match model input size
+test_input = tf.expand_dims(test_img, axis=0)  # Add batch dimension
+test_input = test_input / 255.  # Normalize
+
+# Make prediction
+prediction = model.predict(test_input)
+
+# Display prediction
+print(prediction)
+
+
+
+
+
+
+
+
+#ADDING STRING:CNN
+After plotting code…
+# Properties of 6 classes
+import numpy as np
+
+volume_fraction1 = np.array([15, 75, 21, 73, 91, 28])
+volume_fraction2 = np.array([85, 25, 79, 27, 9, 72])
+uts_mpa = np.array([1351, 875, 1350, 910, 1410, 910])
+temperature_celsius = np.array([820, 730, 780, 700, 800, 710])
+# Load and preprocess test image
+import cv2
+test_img = cv2.imread('/content/steel33.png')
+plt.imshow(test_img)
+test_img = cv2.resize(test_img, (256, 256))
+test_input = test_img.reshape((1, 256, 256, 3))
+class_prediction = model.predict(test_input)
+class_index = np.argmax(class_prediction)
+
+# Display properties of predicted class
+print("Properties of Predicted Class:")
+print("Volume Fraction ferrite:", volume_fraction1[class_index])
+print("Volume Fraction austenite:", volume_fraction2[class_index])
+print("Ultimate Tensile Strength (MPa):", uts_mpa[class_index])
+print("Temperature (°C):", temperature_celsius[class_index])
+
+
+################################Image Classification with Random Forest using OpenCV and Scikit-Learn on Custom Dataset##########################################
+import os
+import zipfile
+import numpy as np
+import cv2
+import matplotlib.pyplot as plt
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import classification_report, confusion_matrix
+from sklearn.model_selection import train_test_split
+import joblib	
+
+# Unzip the dataset
+!mkdir -p ~/.kaggle
+!cp kaggle.json ~/.kaggle/
+!kaggle datasets download -d rajputporika/dataset1upp
+with zipfile.ZipFile('/content/dataset1upp.zip', 'r') as zip_ref:
+    zip_ref.extractall('/content')
+
+# Function to load images and labels
+def load_data(directory):
+    images = []
+    labels = []
+    class_names = os.listdir(directory)
+    for label, class_name in enumerate(class_names):
+        class_dir = os.path.join(directory, class_name)
+        for img_name in os.listdir(class_dir):
+            img_path = os.path.join(class_dir, img_name)
+            image = cv2.imread(img_path)
+            if image is not None:
+                image = cv2.resize(image, (256, 256))
+                images.append(image)
+                labels.append(label)
+    return np.array(images), np.array(labels), class_names
+
+# Load training and validation data
+train_images, train_labels, class_names = load_data('/content/DATA1/TRAINING_DATA')
+validation_images, validation_labels, _ = load_data('/content/DATA1/TESTING_DATA')
+
+# Flatten images
+train_images_flattened = train_images.reshape((train_images.shape[0], -1))
+validation_images_flattened = validation_images.reshape((validation_images.shape[0], -1))
+
+# Normalize the pixel values
+train_images_flattened = train_images_flattened / 255.0
+validation_images_flattened = validation_images_flattened / 255.0
+
+# Train Random Forest classifier
+rf_clf = RandomForestClassifier(n_estimators=100, random_state=42)
+rf_clf.fit(train_images_flattened, train_labels)
+
+# Save the trained model
+joblib.dump(rf_clf, 'rf_classifier.joblib')
+
+# Evaluate the model
+y_pred = rf_clf.predict(validation_images_flattened)
+print('Confusion Matrix:')
+print(confusion_matrix(validation_labels, y_pred))
+print('Classification Report:')
+print(classification_report(validation_labels, y_pred, target_names=class_names))
+
+# Function to classify a query image
+def classify_image(image_path, model_path):
+    # Load the model
+    rf_clf = joblib.load(model_path)
+    
+    # Load and preprocess the query image
+    query_image = cv2.imread(image_path)
+    query_image_resized = cv2.resize(query_image, (256, 256))
+    query_image_flattened = query_image_resized.flatten().reshape(1, -1)
+    query_image_normalized = query_image_flattened / 255.0
+    
+    # Predict the class
+    predicted_label = rf_clf.predict(query_image_normalized)
+    
+    return predicted_label[0], class_names[predicted_label[0]]
+
+# Classify a query image
+query_image_path = '/content/two_phase_img_b.png'
+predicted_label, predicted_class_name = classify_image(query_image_path, 'rf_classifier.joblib')
+
+print(f"Predicted class: {predicted_class_name}")
+
+# Display the query image
+query_image = cv2.imread(query_image_path)
+plt.imshow(cv2.cvtColor(query_image, cv2.COLOR_BGR2RGB))
+plt.title(f"Predicted class: {predicted_class_name}")
+plt.show()
+
+
+
