@@ -1,0 +1,282 @@
+################################MATLAB Script for Image Augmentation: Rotation, Scaling, and Cropping without changing parameters############################
+% Define input image paths
+inputImagePaths = {'C:\Users\ACER\Pictures\Screenshots\three_phase_img2_raw.png', ...
+                   'C:\Users\ACER\Pictures\Screenshots\three_phase_img2c.png'};
+
+% Define output folders
+outputFolders = {'C:\Users\ACER\Desktop\three_phase_img1.png\training_data\images', ...
+                 'C:\Users\ACER\Desktop\three_phase_img1.png\training_data\masks'};
+
+% Ensure output folders exist, if not, create them
+for folderIdx = 1:numel(outputFolders)
+    if ~exist(outputFolders{folderIdx}, 'dir')
+        mkdir(outputFolders{folderIdx});
+    end
+end
+
+% Define the number of augmented images to generate for each input image
+numImages = 200;
+
+% Generate unique random rotation angles, scaling factors, and crop amounts
+rotationAngles = randi([-180, 180], 1, numImages);
+scalingFactors = rand(1, numImages) * 0.5 + 0.5; % Scaling factors between 0.5 and 1.0
+cropAmounts = rand(1, numImages) * 0.5; % Crop amounts between 0 and 0.5
+
+% Loop through each input image
+for imgIdx = 1:numel(inputImagePaths)
+    % Read the input image
+    inputImage = imread(inputImagePaths{imgIdx});
+    
+    % Loop through each augmentation parameter and generate augmented images
+    for i = 1:numImages
+        % Apply rotation
+        rotatedImage = imrotate(inputImage, rotationAngles(i), 'bicubic', 'crop');
+
+        % Apply scaling
+        scaledImage = imresize(rotatedImage, scalingFactors(i));
+
+        % Apply cropping
+        [rows, cols, ~] = size(scaledImage);
+        cropAmount = cropAmounts(i);
+        croppedImage = scaledImage(ceil(rows * cropAmount) : ceil(rows * (1 - cropAmount)), ...
+                                   ceil(cols * cropAmount) : ceil(cols * (1 - cropAmount)), :);
+
+        % Generate output file name
+        outputFileName = sprintf('augmented_image_%03d.png', i);
+        outputFilePath = fullfile(outputFolders{imgIdx}, outputFileName);
+
+        % Write augmented image to output file
+        imwrite(croppedImage, outputFilePath);
+
+        disp(['Generated: ', outputFileName]); % Display progress
+    end
+end
+
+
+
+
+
+
+
+
+#Rotation, Scaling, and Cropping without changing parameters : 256x256 
+% Define input image paths
+inputImagePaths = {'C:\Users\ACER\Pictures\Screenshots\three_phase_img1_raw.png', ...
+                   'C:\Users\ACER\Pictures\Screenshots\three_phase_img1c_UPP.png'};
+
+% Define output folders
+outputFolders = {'C:\Users\ACER\Desktop\temp', ...
+                 'C:\Users\ACER\Desktop\HELLO'};
+
+% Ensure output folders exist, if not, create them
+for folderIdx = 1:numel(outputFolders)
+    if ~exist(outputFolders{folderIdx}, 'dir')
+        mkdir(outputFolders{folderIdx});
+    end
+end
+
+% Define the number of augmented images to generate for each input image
+numImages = 200;
+
+% Generate unique random rotation angles, scaling factors, and crop amounts
+rotationAngles = randi([-180, 180], 1, numImages);
+scalingFactors = rand(1, numImages) * 0.5 + 0.5; % Scaling factors between 0.5 and 1.0
+cropAmounts = rand(1, numImages) * 0.5; % Crop amounts between 0 and 0.5
+
+% Desired output size
+outputSize = [256, 256];
+
+% Loop through each input image
+for imgIdx = 1:numel(inputImagePaths)
+    % Read the input image
+    inputImage = imread(inputImagePaths{imgIdx});
+    
+    % Loop through each augmentation parameter and generate augmented images
+    for i = 1:numImages
+        % Apply rotation
+        rotatedImage = imrotate(inputImage, rotationAngles(i), 'bicubic', 'crop');
+
+        % Apply scaling
+        scaledImage = imresize(rotatedImage, scalingFactors(i));
+
+        % Apply cropping
+        [rows, cols, ~] = size(scaledImage);
+        cropAmount = cropAmounts(i);
+        croppedImage = scaledImage(ceil(rows * cropAmount) : ceil(rows * (1 - cropAmount)), ...
+                                   ceil(cols * cropAmount) : ceil(cols * (1 - cropAmount)), :);
+
+        % Resize the cropped image to 256x256
+        resizedImage = imresize(croppedImage, outputSize);
+
+        % Generate output file name
+        outputFileName = sprintf('augmented_image_%03d.png', i);
+        outputFilePath = fullfile(outputFolders{imgIdx}, outputFileName);
+
+        % Write augmented image to output file
+        imwrite(resizedImage, outputFilePath);
+
+        disp(['Generated: ', outputFileName]); % Display progress
+    end
+end
+
+
+
+
+
+#########################################dividing inputimage into 10 images small small grid without changing parameters################################
+% Read the input image
+inputImage = imread('C:\Users\ACER\Pictures\Screenshots\three_phase_img1_raw.png');
+
+% Get the size of the input image
+[imageHeight, imageWidth, numChannels] = size(inputImage);
+
+% Determine the dimensions for extracting smaller sections
+numImages = 10;
+rows = 2;
+cols = 5;
+
+% Calculate the height and width of each section
+sectionHeight = floor(imageHeight / rows);
+sectionWidth = floor(imageWidth / cols);
+
+% Create output folder if it doesn't exist
+outputFolder = 'C:\Users\ACER\Desktop\temp';
+if ~exist(outputFolder, 'dir')
+    mkdir(outputFolder);
+end
+
+% Initialize counter for image naming
+counter = 1;
+
+% Loop to extract, resize, and save sections
+for row = 1:rows
+    for col = 1:cols
+        % Calculate the row and column index for the section
+        rowIndex = (row - 1) * sectionHeight + 1;
+        colIndex = (col - 1) * sectionWidth + 1;
+        
+        % Extract the section
+        section = inputImage(rowIndex:min(rowIndex+sectionHeight-1, imageHeight), colIndex:min(colIndex+sectionWidth-1, imageWidth), :);
+        
+        % Resize the section to the original image size
+        resizedSection = imresize(section, [imageHeight, imageWidth]);
+        
+        % Generate the filename
+        filename = fullfile(outputFolder, sprintf('largeImage_%02d.png', counter));
+        
+        % Save the resized section
+        imwrite(resizedSection, filename);
+        
+        % Increment the counter
+        counter = counter + 1;
+    end
+end
+
+disp('Image extraction, resizing, and saving completed.');
+
+######################################################dividing inputimage into 50 images by patches##################################################
+% Define input and output paths
+input_image_path = 'C:\Users\ACER\Pictures\Screenshots\three_phase_img1c.png';
+output_folder = 'C:\Users\ACER\Desktop\three_phase_img1.png\training_data\masks';
+
+% Create the output folder if it does not exist
+if ~exist(output_folder, 'dir')
+    mkdir(output_folder);
+end
+
+% Read the input image
+input_image = imread(input_image_path);
+
+% Get the dimensions of the input image
+[image_height, image_width, ~] = size(input_image);
+
+% Define the number of patches and their size
+num_patches = 100;
+patch_size = [128, 128];  % Define the size of each patch (e.g., 256x256 pixels)
+
+% Initialize a counter for patch numbering
+patch_counter = 1;
+
+% Set random seed for reproducibility
+rng(0);
+
+% Loop to generate patches until the desired number is reached
+while patch_counter <= num_patches
+    % Randomly select the top-left corner of the patch
+    row = randi([1, image_height - patch_size(1) + 1]);
+    col = randi([1, image_width - patch_size(2) + 1]);
+    
+    % Extract the patch
+    patch = input_image(row:row+patch_size(1)-1, col:col+patch_size(2)-1, :);
+
+    % Define the output file name
+    output_file = fullfile(output_folder, sprintf('patch_%03d.png', patch_counter));
+
+    % Save the patch as an image
+    imwrite(patch, output_file);
+
+    % Increment the patch counter
+    patch_counter = patch_counter + 1;
+end
+
+disp('Patch extraction and saving completed.');
+
+
+
+
+
+
+
+
+
+##############Working on large images not patches[In training, the data should consist of large images rather than patches, so if we give a large image input it can predict the mask.[ONE PHASE SEGMENTATION]########
+% Read the input images
+inputImage1 = imread('C:\Users\ACER\Desktop\abid singh rajput\DATA BACKUP ABID SINGH RAJPUT\jyoti sir project\2 (2).tif');
+inputImage2 = imread('C:\Users\ACER\Desktop\abid singh rajput\DATA BACKUP ABID SINGH RAJPUT\jyoti sir project\Mask2(2).png');
+
+% Number of images to generate
+numImages = 120;
+
+% Output folders
+outputFolder1 = 'C:\Users\ACER\Desktop\three_phase_img1.png\training_data\images';
+outputFolder2 = 'C:\Users\ACER\Desktop\three_phase_img1.png\training_data\masks';
+
+% Ensure the output folders exist
+if ~exist(outputFolder1, 'dir')
+    mkdir(outputFolder1);
+end
+
+if ~exist(outputFolder2, 'dir')
+    mkdir(outputFolder2);
+end
+
+% Desired output size
+outputSize = [256, 256];
+
+% Loop to generate and save images
+for i = 1:numImages
+    % Create a random transformation
+    angle = randi([0, 360]);
+    scaleFactor = rand(1) + 0.5;
+
+    % Apply transformations to the first image
+    transformedImage1 = imrotate(inputImage1, angle); % Random rotation
+    transformedImage1 = imresize(transformedImage1, scaleFactor); % Random resize
+    transformedImage1 = imresize(transformedImage1, outputSize); % Resize to desired output size
+
+    % Apply the same transformations to the second image
+    transformedImage2 = imrotate(inputImage2, angle); % Random rotation
+    transformedImage2 = imresize(transformedImage2, scaleFactor); % Random resize
+    transformedImage2 = imresize(transformedImage2, outputSize); % Resize to desired output size
+
+    % Create filenames for the new images
+    filename1 = fullfile(outputFolder1, sprintf('image_%03d.png', i));
+    filename2 = fullfile(outputFolder2, sprintf('image_%03d.png', i));
+
+    % Save the transformed images
+    imwrite(transformedImage1, filename1);
+    imwrite(transformedImage2, filename2);
+end
+
+
+
