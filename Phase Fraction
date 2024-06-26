@@ -1,0 +1,44 @@
+###################################phase fraction's of a segmented image#######################################
+
+% Read the grayscale image
+image = imread('Screenshot 2024-05-30 115248.png');
+
+% Convert image to double for precise calculations
+image = double(image);
+
+% Define grayscale ranges for each phase
+% Here, phaseRanges is a Nx2 matrix where N is the number of phases
+% Each row contains the min and max grayscale values for a phase
+phaseRanges = [
+    195, 195;    % Phase 1: grayscale values from 0 to 85
+    0, 194;  % Phase 2: grayscale values from 86 to 170
+    196, 255; % Phase 3: grayscale values from 171 to 255
+];
+
+% Number of phases
+numPhases = size(phaseRanges, 1);
+
+% Initialize an array to store the fraction of each phase
+phaseFractions = zeros(numPhases, 1);
+
+% Total number of pixels in the image
+totalPixels = numel(image);
+
+% Loop through each phase and calculate the fraction
+for i = 1:numPhases
+    % Create a binary mask for the current phase
+    mask = image >= phaseRanges(i, 1) & image <= phaseRanges(i, 2);
+    
+    % Calculate the number of pixels in this phase
+    numPhasePixels = sum(mask(:));
+    
+    % Calculate the fraction of the image occupied by this phase
+    phaseFractions(i) = numPhasePixels / totalPixels;
+end
+
+% Display the results
+for i = 1:numPhases
+    fprintf('Phase %d fraction: %.2f%%\n', i, phaseFractions(i) * 100);
+end
+
+
